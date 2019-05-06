@@ -32,17 +32,15 @@ $(document).ready(function () {
 
 });
 
-// 代码折叠
-// $(document).ready(function(){
-
-    $('.hider_title').on('click', function(){
-      console.log(111111);
-        // $('>.fold', this.parentNode).slideToggle()s;
-        // $('>:first', this).toggleClass('open');
+/* global NexT: true */
+$(document).ready(function(){
+    $(document).on('click', '.fold_hider', function(){
+        $('>.fold', this.parentNode).slideToggle();
+        $('>:first', this).toggleClass('open');
     });
     //默认情况下折叠
-    // $("div.fold").css("display","none"); 
-// });
+    $("div.fold").css("display","none");
+});
 
 $(document).ready(function () {
   var html = $('html');
