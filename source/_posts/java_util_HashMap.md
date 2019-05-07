@@ -16,12 +16,12 @@ tags: Java
 　　在源代码中我们不难看出HashMap继承于AbstractMap，实现了Map、Cloneable、java.io.Serializable接口。
 　　**AbstractMap** 是继承于Map的抽象类，它实现了Map中的大部分API。HashMap可以通过继承AbstractMap来减少重复编码。
 　　实现了**Map接口**,说明HashMap中数据是以键值对的方式存储的。
-	实现了**Cloneable接口**，说明HashMap可以被克隆。
-	实现了**java.io.Serializable接口**，说明HashMap支持序列化，能通过序列化去传输。
+　　实现了**Cloneable接口**，说明HashMap可以被克隆。
+　　实现了**java.io.Serializable接口**，说明HashMap支持序列化，能通过序列化去传输。
+<!-- more -->
 
 ## HashMap的源代码解析
 ### HashMap属性
-真的服了  怎么上传一个博客这么难
 
 {% fold 点击显/隐内容 %}
 ```java
@@ -147,6 +147,7 @@ tags: Java
 　　null的时候，该元素存放在table[0]位置上。
 接下来请看代码解析：
 
+{% fold 点击显/隐内容 %}
 ```java
 public V put(K key, V value) {
         return putVal(hash(key), key, value, false, true);
@@ -187,6 +188,7 @@ public V put(K key, V value) {
                     p = e;
                 }
             }
+            //开始删除了，但红黑树的删除节点会对树进行修复的，后面会单独写一篇关于红黑树的内容。
             if (e != null) { // existing mapping for key
                 V oldValue = e.value;
                 if (!onlyIfAbsent || oldValue == null)
@@ -202,6 +204,63 @@ public V put(K key, V value) {
         return null;
     }
 ```
+ {% endfold %}
+
+### HashMap的移除元素方法(remove)
+　　HashMap的移除：方法和之前方法的思路大概类似：首先一定要确定元素的位置，其次要判断是否存储该元素，如果找到了就进行移除操作，没有则返回Null。
+```java
+    public V remove(Object key) {
+        Node<K,V> e;
+        return (e = removeNode(hash(key), key, null, false, true)) == null ?
+            null : e.value;
+    }
+    final Node<K,V> removeNode(int hash, Object key, Object value,
+                               boolean matchValue, boolean movable) {
+        Node<K,V>[] tab; Node<K,V> p; int n, index;
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+            //以后我们看到hash ‘与’运算首先应该想到确定位置。
+            (p = tab[index = (n - 1) & hash]) != null) {
+            Node<K,V> node = null, e; K k; V v;
+            //需要移除的元素的哈希值与存储元素的key
+            if (p.hash == hash &&
+                ((k = p.key) == key || (key != null && key.equals(k))))
+                node = p;
+            else if ((e = p.next) != null) {
+                //如果确定了的元素所属于树
+                if (p instanceof TreeNode)
+                    //在树中找到对应节点
+                    node = ((TreeNode<K,V>)p).getTreeNode(hash, key);
+                else {
+                    //不是树，那么就遍历链表去对比。
+                    do {
+                        if (e.hash == hash &&
+                            ((k = e.key) == key ||
+                             (key != null && key.equals(k)))) {
+                            node = e;
+                            break;
+                        }
+                        p = e;
+                    } while ((e = e.next) != null);
+                }
+            }
+            if (node != null && (!matchValue || (v = node.value) == value ||
+                                 (value != null && value.equals(v)))) {
+                if (node instanceof TreeNode)
+                    ((TreeNode<K,V>)node).removeTreeNode(this, tab, movable);
+                else if (node == p)
+                    tab[index] = node.next;
+                else
+                    p.next = node.next;
+                ++modCount;
+                --size;
+                afterNodeRemoval(node);
+                return node;
+            }
+        }
+        return null;
+    }
+```
+
 
 ### HashMap的查询方法(get)
 

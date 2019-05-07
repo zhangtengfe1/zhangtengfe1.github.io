@@ -14,6 +14,8 @@ tags: Java
 　　HashTable是一个散列表，它存储的内容是（key-value）键值对。
 　　HashTable继承于Directionary,Directionary也是键值对的接口，并且HashTable也实现了Map接口，存储键值对毋庸置疑。Cloneable接口使它可以被克隆，Serializable使它可以被序列化。HashTable是**无序的**。
 
+<!-- more -->
+
 ## 源码分析
 ### 构造函数
 

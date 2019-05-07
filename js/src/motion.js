@@ -1,6 +1,24 @@
 /* global NexT: true */
+<<<<<<< HEAD
 
 $(document).ready(function () {
+=======
+$(document).ready(function(){
+    $(document).on('click', '.fold_hider', function(){
+        $('>.fold', this.parentNode).slideToggle();
+        $('>:first', this).toggleClass('open');
+    });
+    //默认情况下折叠
+    $("div.fold").css("display","none");
+});
+$(document).ready(function () {
+// $(".fold").hide();
+//   $('.hider_title').on('click',function(){
+//     $('>.fold', this.parentNode).slideToggle();
+//     $('>:first', this).toggleClass('open');
+
+//   })
+>>>>>>> c2496339f7f2874ef175ac118e1040707de74a55
   NexT.motion = {};
 
   var sidebarToggleLines = {

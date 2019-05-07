@@ -1,4 +1,8 @@
 /* global NexT: true */
+<<<<<<< HEAD
+=======
+  console.log('000000000ss');
+>>>>>>> c2496339f7f2874ef175ac118e1040707de74a55
 
 $(document).ready(function () {
 
@@ -32,6 +36,7 @@ $(document).ready(function () {
 });
 
 // 代码折叠
+<<<<<<< HEAD
 $(document).ready(function(){
     $(document).on('click', '.fold_hider', function(){
         $('>.fold', this.parentNode).slideToggle();
@@ -40,6 +45,18 @@ $(document).ready(function(){
     //默认情况下折叠
     $("div.fold").css("display","none");
 });
+=======
+// $(document).ready(function(){
+
+    $('.hider_title').on('click', function(){
+      console.log(111111);
+        // $('>.fold', this.parentNode).slideToggle()s;
+        // $('>:first', this).toggleClass('open');
+    });
+    //默认情况下折叠
+    // $("div.fold").css("display","none"); 
+// });
+>>>>>>> c2496339f7f2874ef175ac118e1040707de74a55
 
 $(document).ready(function () {
   var html = $('html');
