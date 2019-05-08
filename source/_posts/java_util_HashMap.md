@@ -307,6 +307,8 @@ final Node<K,V> getNode(int hash, Object key) {
 
 
 ### HashMap的扩容方法(resize)
+
+{% fold 点击显/隐内容 %}
 ```java
     final Node<K,V>[] resize() {
         Node<K,V>[] oldTab = table;
@@ -387,7 +389,7 @@ final Node<K,V> getNode(int hash, Object key) {
         return newTab;
     }
 ```
-
+ {% endfold %}
 
 
 
