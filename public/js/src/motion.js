@@ -8,12 +8,6 @@ $(document).ready(function(){
     $("div.fold").css("display","none");
 });
 $(document).ready(function () {
-// $(".fold").hide();
-//   $('.hider_title').on('click',function(){
-//     $('>.fold', this.parentNode).slideToggle();
-//     $('>:first', this).toggleClass('open');
-
-//   })
   NexT.motion = {};
 
   var sidebarToggleLines = {
