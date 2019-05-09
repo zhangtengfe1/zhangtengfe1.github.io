@@ -351,7 +351,7 @@
 
       
         
-          <h2 id="HashMap的数据结构"><a href="#HashMap的数据结构" class="headerlink" title="HashMap的数据结构"></a>HashMap的数据结构</h2><p>　　JDK 1.8对HashMap进行了比较大的优化，底层实现由之前的<strong>“数组+链表”改为“数组+链表+红黑树”</strong>。当链表节点较少时仍然是以链表存在，当链表节点较多时（大于8）会转为红黑树。<br>　　接下来让我们看看HashMap是如何定义的：<br><!--�7--></p>
+          <h2 id="HashMap的数据结构"><a href="#HashMap的数据结构" class="headerlink" title="HashMap的数据结构"></a>HashMap的数据结构</h2><p>　　JDK 1.8对HashMap进行了比较大的优化，底层实现由之前的<strong>“数组+链表”改为“数组+链表+红黑树”</strong>。当链表节点较少时仍然是以链表存在，当链表节点较多时（大于8）会转为红黑树。<br>　　接下来让我们看看HashMap是如何定义的：<br><!--�0--></p>
 <p>　　在源代码中我们不难看出HashMap继承于AbstractMap，实现了Map、Cloneable、java.io.Serializable接口。<br>　　<strong>AbstractMap</strong> 是继承于Map的抽象类，它实现了Map中的大部分API。HashMap可以通过继承AbstractMap来减少重复编码。<br>　　实现了<strong>Map接口</strong>,说明HashMap中数据是以键值对的方式存储的。<br>　　实现了<strong>Cloneable接口</strong>，说明HashMap可以被克隆。<br>　　实现了<strong>java.io.Serializable接口</strong>，说明HashMap支持序列化，能通过序列化去传输。<br>
           <!--noindex-->
           <div class="post-button text-center">
@@ -498,7 +498,7 @@
 
       
         
-          <h2 id="HashTable介绍"><a href="#HashTable介绍" class="headerlink" title="HashTable介绍"></a>HashTable介绍</h2><!--�0-->
+          <h2 id="HashTable介绍"><a href="#HashTable介绍" class="headerlink" title="HashTable介绍"></a>HashTable介绍</h2><!--�2-->
 <p>　　HashTable是一个散列表，它存储的内容是（key-value）键值对。<br>　　HashTable继承于Directionary,Directionary也是键值对的接口，并且HashTable也实现了Map接口，存储键值对毋庸置疑。Cloneable接口使它可以被克隆，Serializable使它可以被序列化。HashTable是<strong>无序的</strong>。</p>
           <!--noindex-->
           <div class="post-button text-center">
