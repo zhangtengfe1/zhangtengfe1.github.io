@@ -121,6 +121,7 @@ tags: Java
         modCount++;
 
         Entry<?,?> tab[] = table;
+        //如果添加的过程中table的元素个数大于等于阈值（容量*加载因子），扩容。
         if (count >= threshold) {
             // Rehash the table if the threshold is exceeded
             rehash();
@@ -131,6 +132,7 @@ tags: Java
         }
 
         // Creates the new entry.
+        //注意，此处为 hashtable将新添加的元素放在链表的首位置。
         @SuppressWarnings("unchecked")
         Entry<K,V> e = (Entry<K,V>) tab[index];
         tab[index] = new Entry<>(hash, key, value, e);
@@ -145,19 +147,22 @@ tags: Java
 ```
 
 
+### remove()
+　　首先会确定将要删除的元素在数组(table)中的位置，然后会遍历链表删除元素。删除的大致描述是将上一个元素的指针指向当前元素的下一个节点。删除成功后会返回所删除节点的value值，如果hashtable内不存在所删除元素，返回null。
 ```java
     public synchronized V remove(Object key) {
         Entry<?,?> tab[] = table;
         int hash = key.hashCode();
-        int index = (hash & 0x7FFFFFFF) % tab.length;
+        int index = (hash & 0x7FFFFFFF) % tab.length;//求出所删除元素在数组中的位置
         @SuppressWarnings("unchecked")
         Entry<K,V> e = (Entry<K,V>)tab[index];
         for(Entry<K,V> prev = null ; e != null ; prev = e, e = e.next) {
             if ((e.hash == hash) && e.key.equals(key)) {
                 modCount++;
-                if (prev != null) {
+                if (prev != null) {//遍历链表
                     prev.next = e.next;
                 } else {
+                    //删除掉链表的头节点
                     tab[index] = e.next;
                 }
                 count--;

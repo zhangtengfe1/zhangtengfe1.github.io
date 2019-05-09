@@ -307,6 +307,7 @@ final Node<K,V> getNode(int hash, Object key) {
 
 
 ### HashMap的扩容方法(resize)
+　　扩容，hashmap的扩容机制是当元素个数大于等于 初始容量*加载因子 的时候，开始进行扩容。扩容量为原来容量的两倍。由于hashmap初始容量为16，而每次扩容又为原容量的两倍，所以一道常见的面试题：为什么hashmap的容量永远是2的指数倍  就迎刃而解了。但是扩容之后，hashmap是要重新计算键值对的位置的((n-1)&hash, n为数组table的大小，n发生了变化)，所以尽量要避免频繁对hashmap进行扩容，因此能否设计一个好的hashmap尤为重要。那么我们来看一下它里面的代码。
 
 {% fold 点击显/隐内容 %}
 ```java
@@ -331,7 +332,7 @@ final Node<K,V> getNode(int hash, Object key) {
             newCap = oldThr;
         else {               // zero initial threshold signifies using 
             //进入该else 则证明创建hashmap
-            //初始的阈值为0的话（hashmap初始化）就将默认对的参数赋予新的hashmap。ßß
+            //初始的阈值为0的话（hashmap初始化）就将默认对的参数赋予新的hashmap。
             newCap = DEFAULT_INITIAL_CAPACITY;
             newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
         }
