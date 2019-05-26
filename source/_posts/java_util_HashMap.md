@@ -76,7 +76,37 @@ tags: Java
 ```
  {% endfold %}
 
+### 红黑树
+　　红黑树的基本属性，由于红黑树内容较多，本篇文章不会过多涉及，但后续会出与数据结构有关的文章，到时候在详谈。
 
+```java
+    static final class TreeNode<K,V> extends LinkedHashMap.Entry<K,V> {
+        TreeNode<K,V> parent; //父节点 // red-black tree links
+        TreeNode<K,V> left;//左节点
+        TreeNode<K,V> right;//右节点
+        TreeNode<K,V> prev; //上一个同级节点   // needed to unlink next upon deletion
+        boolean red;//红黑树颜色
+        TreeNode(int hash, K key, V val, Node<K,V> next) {
+            super(hash, key, val, next);
+        }
+
+        /**
+         * Returns root of tree containing this node.
+         */
+        final TreeNode<K,V> root() {
+            for (TreeNode<K,V> r = this, p;;) {
+                if ((p = r.parent) == null)
+                    return r;
+                r = p;
+            }
+        }
+        .
+        .
+        .
+        .
+    }
+
+```
 
 
 
@@ -188,7 +218,7 @@ public V put(K key, V value) {
                     p = e;
                 }
             }
-            //开始删除了，但红黑树的删除节点会对树进行修复的，后面会单独写一篇关于红黑树的内容。
+            
             if (e != null) { // existing mapping for key
                 V oldValue = e.value;
                 if (!onlyIfAbsent || oldValue == null)
@@ -198,6 +228,7 @@ public V put(K key, V value) {
             }
         }
         ++modCount;
+        //超过阈值，则进行扩容操作
         if (++size > threshold)
             resize();
         afterNodeInsertion(evict);
@@ -245,10 +276,13 @@ public V put(K key, V value) {
             }
             if (node != null && (!matchValue || (v = node.value) == value ||
                                  (value != null && value.equals(v)))) {
+                //调用树的移除方法
                 if (node instanceof TreeNode)
                     ((TreeNode<K,V>)node).removeTreeNode(this, tab, movable);
+                //移除数组（链表的头结点）上的数据
                 else if (node == p)
                     tab[index] = node.next;
+                //移除链表
                 else
                     p.next = node.next;
                 ++modCount;
@@ -265,32 +299,37 @@ public V put(K key, V value) {
 ### HashMap的查询方法(get)
 
 ```java
-public V get(Object key) {
-    Node<K,V> e;
-    return (e = getNode(hash(key), key)) == null ? null : e.value;
-}
-final Node<K,V> getNode(int hash, Object key) {
-    Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
-    //首先判断一下table不等于空并且根据hash算法算出的位置上的元素也不为空
-    if ((tab = table) != null && (n = tab.length) > 0 &&
-        (first = tab[(n - 1) & hash]) != null) {
-        //如果算出的位置的第一个元素就是所找的，那么直接返回。
-        if (first.hash == hash && // always check first node
-            ((k = first.key) == key || (key != null && key.equals(k))))
-            return first;
-        //如果不是，遍历红黑树或链表
-        if ((e = first.next) != null) {
-            if (first instanceof TreeNode)
-                return ((TreeNode<K,V>)first).getTreeNode(hash, key);
-            do {
-                if (e.hash == hash &&
-                    ((k = e.key) == key || (key != null && key.equals(k))))
-                    return e;
-            } while ((e = e.next) != null);
-        }
+    public V get(Object key) {
+        Node<K,V> e;
+        return (e = getNode(hash(key), key)) == null ? null : e.value;
     }
-    return null;
-}
+    final Node<K,V> getNode(int hash, Object key) {
+        Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
+        //首先判断一下table是否不等于空并且根据hash算法算出的位置上的元素是否也不为空
+        if ((tab = table) != null && (n = tab.length) > 0 &&
+            (first = tab[(n - 1) & hash]) != null) {
+            //如果算出的位置的第一个元素就是所找的，那么直接返回。
+            if (first.hash == hash && // always check first node
+                ((k = first.key) == key || (key != null && key.equals(k))))
+                return first;
+            //如果不是，遍历红黑树或链表
+            if ((e = first.next) != null) {
+                if (first instanceof TreeNode)
+                    return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+                do {
+                    if (e.hash == hash &&
+                        ((k = e.key) == key || (key != null && key.equals(k))))
+                        return e;
+                } while ((e = e.next) != null);
+            }
+        }
+        return null;
+    }
+
+    //通过getNode()方法的返回值并判断是否为空。
+    public boolean containsKey(Object key) {
+        return getNode(hash(key), key) != null;
+    }
  ```
 
 
@@ -352,7 +391,7 @@ final Node<K,V> getNode(int hash, Object key) {
                     oldTab[j] = null;
                     if (e.next == null)
                         newTab[e.hash & (newCap - 1)] = e;
-                    else if (e instanceof TreeNode)
+                    else if (e instanceof TreeNode)//如果为节点为红黑树类型，则添加到红黑树中
                         ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
                     else { // preserve order
                         Node<K,V> loHead = null, loTail = null;
@@ -393,6 +432,77 @@ final Node<K,V> getNode(int hash, Object key) {
  {% endfold %}
 
 
+### HashMap的其他方法
+　　HashMap一些有可能用的上的方法。
+
+```java
+    /**
+     * Removes all of the mappings from this map.
+     * The map will be empty after this call returns.
+     */
+    //清除方法，遍历hashmap并将数组中的数据赋值为null。
+    public void clear() {
+        Node<K,V>[] tab;
+        modCount++;
+        if ((tab = table) != null && size > 0) {
+            size = 0;
+            for (int i = 0; i < tab.length; ++i)
+                tab[i] = null;
+        }
+    }
+    //是否存在某个value值。遍历数组及链表，并逐个对比。
+    public boolean containsValue(Object value) {
+        Node<K,V>[] tab; V v;
+        if ((tab = table) != null && size > 0) {
+            for (int i = 0; i < tab.length; ++i) {
+                for (Node<K,V> e = tab[i]; e != null; e = e.next) {
+                    if ((v = e.value) == value ||
+                        (value != null && value.equals(v)))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+```
+
+## HashMap的四种遍历方式
+
+```java
+    //for  eash  map.entrySet()
+    Map<String, String> map = new HashMap<String, String>();
+        for (Entry<String, String> entry : map.entrySet()) {
+        entry.getKey();
+        entry.getValue();
+    }
+
+    //map.entrySet()的集合迭代器
+    String key = null;
+    Integer integ = null;
+    Iterator iter = map.keySet().iterator();
+    while (iter.hasNext()) {
+            // 获取key
+        key = (String)iter.next();
+            // 根据key，获取value
+        integ = (Integer)map.get(key);
+    }
+
+
+    //for each map.keySet()，再调用get获取
+    Map<String, String> map = new HashMap<String, String>();
+        for (String key : map.keySet()) {
+        map.get(key);
+    }
+
+    //for each map.entrySet()，用临时变量保存map.entrySet()
+    Set<Entry<String, String>> entrySet = map.entrySet();
+        for (Entry<String, String> entry : entrySet) {
+        entry.getKey();
+        entry.getValue();
+    }
+```
+两个entrySet的遍历速度接近，而且效率很高，但是用哪种还要看情况定夺
 
 
 
@@ -401,10 +511,9 @@ final Node<K,V> getNode(int hash, Object key) {
 
 
 
+## 参考
+**java学习--高效的除模取余运算(n-1)&hash**   https://www.cnblogs.com/gne-hwz/p/10060260.html
 
+**JDK1.8 HashMap源码分析**    https://www.cnblogs.com/xiaoxi/p/7233201.html
 
-
-
-##参考
-java学习--高效的除模取余运算(n-1)&hash
-https://www.cnblogs.com/gne-hwz/p/10060260.html
+**HashMap循环遍历方式及其性能对比**    https://www.cnblogs.com/imzhj/p/5981665.html

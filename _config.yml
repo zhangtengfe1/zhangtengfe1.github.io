@@ -3,7 +3,7 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: 困困困困er
+title: 我又不脆弱，
 subtitle:
 description:
 keywords:
@@ -91,5 +91,6 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repository: git@github.com:zhangtengfe1/zhangtengfe1.github.io.git
+##  repository: git@github.com:zhangtengfe1/zhangtengfe1.github.io.git
+  repository: https://gitee.com/zhangtengfe1/zhangtengfe1.git
   branch: master

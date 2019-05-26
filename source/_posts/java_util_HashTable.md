@@ -90,8 +90,13 @@ tags: Java
 
 　　还是老规矩，增删查走起！！！
 ### put()
-
+　　① 先获取synchroized锁
+　　② 对添加的数据的值进行判断，如果为null会抛出异常
+　　③ 计算key在数组中的位置
+　　④ 遍历链表，如果发现已经存在相同的key，那么就替换并返回旧值；没有则添加到链表的头部。
+　　⑤ 对hashtable是否需要扩容进行判断，如要则扩容。
 ```java
+
 	public synchronized V put(K key, V value) {
         // Make sure the value is not null
         //确保value值不为空，这就是hashtable是不能存储空值的原因。
@@ -146,6 +151,24 @@ tags: Java
     }
 ```
 
+### get()
+　　① 先获取synchroized锁
+　　② 通过计算得到元素的位置
+　　③ 遍历链表，如果找到则返回value值，否则返回null。
+
+```java
+    public synchronized V get(Object key) {
+        Entry<?,?> tab[] = table;
+        int hash = key.hashCode();
+        int index = (hash & 0x7FFFFFFF) % tab.length;
+        for (Entry<?,?> e = tab[index] ; e != null ; e = e.next) {
+            if ((e.hash == hash) && e.key.equals(key)) {
+                return (V)e.value;
+            }
+        }
+        return null;
+    }
+```
 
 ### remove()
 　　首先会确定将要删除的元素在数组(table)中的位置，然后会遍历链表删除元素。删除的大致描述是将上一个元素的指针指向当前元素的下一个节点。删除成功后会返回所删除节点的value值，如果hashtable内不存在所删除元素，返回null。
@@ -172,6 +195,39 @@ tags: Java
             }
         }
         return null;
+    }
+```
+
+### rehash()
+```java
+　　protected void rehash() {
+        int oldCapacity = table.length;
+        Entry<?,?>[] oldMap = table;
+
+        // overflow-conscious code
+        int newCapacity = (oldCapacity << 1) + 1;
+        if (newCapacity - MAX_ARRAY_SIZE > 0) {
+            if (oldCapacity == MAX_ARRAY_SIZE)
+                // Keep running with MAX_ARRAY_SIZE buckets
+                return;
+            newCapacity = MAX_ARRAY_SIZE;
+        }
+        Entry<?,?>[] newMap = new Entry<?,?>[newCapacity];
+
+        modCount++;
+        threshold = (int)Math.min(newCapacity * loadFactor, MAX_ARRAY_SIZE + 1);
+        table = newMap;
+
+        for (int i = oldCapacity ; i-- > 0 ;) {
+            for (Entry<K,V> old = (Entry<K,V>)oldMap[i] ; old != null ; ) {
+                Entry<K,V> e = old;
+                old = old.next;
+
+                int index = (e.hash & 0x7FFFFFFF) % newCapacity;
+                e.next = (Entry<K,V>)newMap[index];
+                newMap[index] = e;
+            }
+        }
     }
 ```
 
